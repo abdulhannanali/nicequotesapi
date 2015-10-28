@@ -11,3 +11,6 @@ whereever and however they want.
 
 
 ## API Under Development
+
+**DISCLAIMER:** The application hosted by abdulhannanali uses MongoLab Sandbox
+500MB Free Database. So **24 Hour availability or any reliability is not guaranteed**
