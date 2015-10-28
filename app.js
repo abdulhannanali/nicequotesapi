@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require("mongoose");
 
 var quotes = require("./routes/quoteRoute");
-var db = mongoose.connect("mongodb://localhost/niceQuotes")
+var db = mongoose.connect("mongodb://abdulhannanali:rockyourbody@ds039504.mongolab.com:39504/nicequotesdb")
 var app = express();
 
 // importing models
