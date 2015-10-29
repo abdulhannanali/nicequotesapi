@@ -1,25 +1,5 @@
 var quoteController = function (Quote) {
 
-  // constructs a queryObject by using items from req.query
-  // this object can be passed as a mongodb query
-  var constructQueryObject = function(req){
-    var queryObj = {};
-    if (req.query.author) {
-      queryObj.author = req.query.author;
-    }
-    if (req.query.topic) {
-      queryObj.topic = req.query.topic;
-    }
-
-    if (req.query.tags) {
-      queryObj.tags = req.query.tags.split(",").map(function(value, index, array){
-        return value.trim();
-      });
-    }
-
-    return queryObj;
-  }
-
   var hateoasURL = function (req, stringToAdd) {
   // construct a hateoasURL
     var defaultString = req.protocol + "://" + req.headers.host + "/api/quotes";
@@ -53,35 +33,19 @@ var quoteController = function (Quote) {
     return newQuote;
   }
 
-  var getAllQuotes = function(req, res){
-    // Displaying all the items in the database
-    // TODO: Implement the pagination
-    var fieldsFilter = {};
-    var paramsFilter = {};
-    if (req.query.author) {
-      paramsFilter.author = req.query.author;
-    }
-    if (req.query.tags) {
-      paramsFilter.tags = req.query.tags.split(",").map(function(value, index, array) {
-        return value.trim();
-      });
-    }
-    if (req.query.topic) {
-      paramsFilter.topic = req.query.topic;
-    }
 
-    var q = Quote.find(paramsFilter);
+
+  var getAllQuotes = function(req, res){
+
+    var q = Quote.find(req.queryObj);
     if (req.query.limit) {
       q.limit(req.query.limit)
         .exec(function (error, quotes) {
           if (error) {
-            res.json ({error: error});
+            next(error);
           }
           else if (quotes[0] == null) {
-            res.status(400);
-            res.json ({
-              "message": "no quotes found for this query"
-            });
+            next();
           }
           else {
             // adding a link to each quote
@@ -89,7 +53,7 @@ var quoteController = function (Quote) {
             quotes.forEach(function(quote, index, array) {
               newQuotes.push(addALink(req, quote.toJSON()));
             });
-            res.json(newQuotes);
+            newQuotes.pipe(res);
           }
         })
     }
@@ -115,7 +79,7 @@ var quoteController = function (Quote) {
 
       newQuote.save(function(error) {
         if (error) {
-          res.send(error.message);
+          next(error);
         }
         else {
           res.json(newQuote);
@@ -130,20 +94,15 @@ var quoteController = function (Quote) {
    * the quote is selected from the specific topic
    */
   var getARandomQuote = function(req, res, next) {
-    var queryObj = constructQueryObject(req);
-    Quote.find(queryObj).count(function (err, count) {
+    Quote.find(req.queryObj).count(function (err, count) {
       if (err) {
-        res.json({
-          error: err
-        });
+        next(err);
       }
       else {
         var rand = Math.floor(Math.random() * count);
-        Quote.findOne(queryObj, {}, {skip: rand}, function(err, quote) {
+        Quote.findOne(req.queryObj, {}, {skip: rand}, function(err, quote) {
           if (err) {
-            res.json({
-              error: err
-            });
+            next(err);
           }
           else if (quote == null) {
             next(new Error("No Quote Found"));
@@ -156,14 +115,16 @@ var quoteController = function (Quote) {
     });
   };
 
-  var getAQuote = function (req, res) {
+  var getAQuote = function (req, res, next) {
       if (req.params.id) {
         Quote.findById(req.params.id, function(err, quote) {
           if (err) {
-            res.status(500);
-            res.json({
-              "message": "a quote with the given id was not found"
-            })
+            if (err.path == "_id" && err.name == "CastError") {
+              next();
+            }
+            else {
+              next(err);
+            }
           }
           else {
             res.json(addFiltersToQuote(req, quote));
@@ -171,6 +132,7 @@ var quoteController = function (Quote) {
         });
       }
   }
+
 
   return {
     get: getAllQuotes,
