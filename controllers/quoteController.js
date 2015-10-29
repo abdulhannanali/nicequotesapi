@@ -53,7 +53,7 @@ var quoteController = function (Quote) {
             quotes.forEach(function(quote, index, array) {
               newQuotes.push(addALink(req, quote.toJSON()));
             });
-            newQuotes.pipe(res);
+            res.json(newQuotes);
           }
         })
     }
