@@ -6,8 +6,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require("mongoose");
 
+// SECRET KEYS
+var keys = require("./config/keys")();
+
 var quotes = require("./routes/quoteRoute");
-var db = mongoose.connect("mongodb://abdulhannanali:rockyourbody@ds039504.mongolab.com:39504/nicequotesdb")
+var db = mongoose.connect(keys.MONGODB_CONNECTION_URI);
 var app = express();
 
 // importing models

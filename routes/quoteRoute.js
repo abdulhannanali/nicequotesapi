@@ -8,31 +8,12 @@ var router = function (Quote) {
     .get(quoteController.get)
     .post(quoteController.post);
 
+  Router.route("/id/:id")
+    .get(quoteController.getAQuote);
 
   // route for getting a random quote
   Router.route("/random")
-    .get(function(req, res) {
-      Quote.count(function (err, count) {
-        if (err) {
-          res.json({
-            error: err
-          });
-        }
-        else {
-          var rand = Math.floor(Math.random() * count);
-          Quote.findOne({}, {}, {skip: rand}, function(err, quote) {
-            if (err) {
-              res.json({
-                error: err
-              });
-            }
-            else {
-              res.json(quote);
-            }
-          });
-        }
-      });
-    });
+    .get(quoteController.getRandom);
 
   return Router;
 }
