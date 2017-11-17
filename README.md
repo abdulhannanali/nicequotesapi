@@ -1,5 +1,7 @@
 # Nice Quotes API
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/abdulhannanali/nicequotesapi.svg)](https://greenkeeper.io/)
+
 ### For instructions on how to deploy this on your own. Go down bae!!!
 
 *NOTE: It might seem different to you that I used Mozilla License but it's
